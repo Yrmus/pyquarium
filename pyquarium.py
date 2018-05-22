@@ -11,7 +11,7 @@ class Pyquarium():
             while True:
                 self.light.set_color(255, 255, 255)
         except KeyboardInterrupt:
-            self.light.set_color(255, 255, 255)
+            self.light.set_color(0, 0, 0)
 
 
 # Main program logic follows:
