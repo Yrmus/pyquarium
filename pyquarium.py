@@ -5,12 +5,15 @@ class Pyquarium():
     def __init__(self):
         self.light = Light()
         self.start()
+        self.working = False
 
     def start(self):
         try:
             while True:
                 print('starting')
-                self.light.set_color(255, 255, 255)
+                if not self.working:
+                    self.light.set_color(255, 255, 255)
+                    self.working = True
         except KeyboardInterrupt:
             self.light.set_color(0, 0, 0)
 
