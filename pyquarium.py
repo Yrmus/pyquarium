@@ -4,8 +4,8 @@ from light import Light
 class Pyquarium():
     def __init__(self):
         self.light = Light()
-        self.start()
         self.working = False
+        self.start()
 
     def start(self):
         try:
