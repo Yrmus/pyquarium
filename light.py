@@ -19,7 +19,7 @@ class Light():
                                        defaultConfig['LedPin'],
                                        defaultConfig['LedFreqHz'],
                                        defaultConfig['LedDma'],
-                                       defaultConfig['LedInvers'],
+                                       defaultConfig['LedInvert'],
                                        defaultConfig['LedBrightness'],
                                        defaultConfig['LedChannel'])
         self.strip.begin()
