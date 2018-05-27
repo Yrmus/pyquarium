@@ -14,14 +14,14 @@ class Light():
     def __init__(self):
         config = ConfigParser.ConfigParser()
         config.read('config.ini')
-        defaultConfig = config['DEFAULT']
-        self.strip = Adafruit_NeoPixel(defaultConfig['LedCount'],
-                                       defaultConfig['LedPin'],
-                                       defaultConfig['LedFreqHz'],
-                                       defaultConfig['LedDma'],
-                                       defaultConfig['LedInvert'],
-                                       defaultConfig['LedBrightness'],
-                                       defaultConfig['LedChannel'])
+        # defaultConfig = config['DEFAULT']
+        self.strip = Adafruit_NeoPixel(config.get('DEFAULT', 'LedCount'),
+                                       config.get('DEFAULT', 'LedPin'),
+                                       config.get('DEFAULT', 'LedFreqHz'),
+                                       config.get('DEFAULT', 'LedDma'),
+                                       config.get('DEFAULT', 'LedInvert'),
+                                       config.get('DEFAULT', 'LedBrightness'),
+                                       config.get('DEFAULT', 'LedChannel'))
         self.strip.begin()
 
     def set_color(self, red, green, blue):
