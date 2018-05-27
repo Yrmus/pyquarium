@@ -1,5 +1,7 @@
 from neopixel import *
 import ConfigParser
+
+
 #
 # LED_COUNT = 105  # Number of LED pixels.
 # LED_PIN = 18  # GPIO pin connected to the pixels (18 uses PWM!).
@@ -15,12 +17,9 @@ class Light():
         config = ConfigParser.ConfigParser()
         config.read('config.ini')
         # defaultConfig = config['DEFAULT']
-        self.strip = Adafruit_NeoPixel(config.get('DEFAULT', 'LedCount'),
-                                       config.get('DEFAULT', 'LedPin'),
-                                       config.get('DEFAULT', 'LedFreqHz'),
-                                       config.get('DEFAULT', 'LedDma'),
-                                       config.get('DEFAULT', 'LedInvert'),
-                                       config.get('DEFAULT', 'LedBrightness'),
+        self.strip = Adafruit_NeoPixel(config.get('DEFAULT', 'LedCount'), config.get('DEFAULT', 'LedPin'),
+                                       config.get('DEFAULT', 'LedFreqHz'), config.get('DEFAULT', 'LedDma'),
+                                       config.get('DEFAULT', 'LedInvert'), config.get('DEFAULT', 'LedBrightness'),
                                        config.get('DEFAULT', 'LedChannel'))
         self.strip.begin()
 
@@ -31,6 +30,3 @@ class Light():
 
     def turn_off(self):
         pass
-
-
-
