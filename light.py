@@ -25,6 +25,7 @@ class Light():
 
     def set_color(self, red, green, blue):
         for i in range(self.strip.numPixels()):
+            print("led number:", i)
             self.strip.setPixelColor(i, Color(red, green, blue))
         self.strip.show()
 

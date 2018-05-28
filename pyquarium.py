@@ -10,8 +10,8 @@ class Pyquarium():
     def start(self):
         try:
             while True:
-                print('starting')
                 if not self.working:
+                    print('starting')
                     self.light.set_color(255, 255, 255)
                     self.working = True
         except KeyboardInterrupt:
