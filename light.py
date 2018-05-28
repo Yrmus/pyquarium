@@ -1,5 +1,5 @@
 from neopixel import *
-import ConfigParser
+import configparser
 
 
 #
@@ -14,7 +14,7 @@ import ConfigParser
 
 class Light():
     def __init__(self):
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         config.read('config.ini')
         # defaultConfig = config['DEFAULT']
         self.strip = Adafruit_NeoPixel(config.getint('DEFAULT', 'LedCount'), config.getint('DEFAULT', 'LedPin'),
