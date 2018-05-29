@@ -19,7 +19,8 @@ class Light():
         # defaultConfig = config['DEFAULT']
         self.strip = Adafruit_NeoPixel(config.getint('DEFAULT', 'LedCount'), config.getint('DEFAULT', 'LedPin'),
                                        config.getint('DEFAULT', 'LedFreqHz'), config.getint('DEFAULT', 'LedDma'),
-                                       config.getboolean('DEFAULT', 'LedInvert'), config.getint('DEFAULT', 'LedBrightness'),
+                                       config.getboolean('DEFAULT', 'LedInvert'),
+                                       config.getint('DEFAULT', 'LedBrightness'),
                                        config.getint('DEFAULT', 'LedChannel'))
         self.strip.begin()
 
@@ -28,7 +29,14 @@ class Light():
             self.strip.setPixelColor(i, Color(red, green, blue))
         self.strip.show()
         for i in range(self.strip.numPixels()):
-            print('led', i,' ', self.strip.getPixelColor(i));
+            print('led', i, ' ', self.get_pixel_color(i))
+
+    def get_pixel_color(self, index):
+        return self.parse_color(self.strip.getPixelColor(index))
+
+    def parse_color(self, color):
+        binary = bin(color)
+        return {'red': int(binary[2:10], 2), 'green': int(binary[10:18], 2), 'blue': int(binary[18:26], 2)}
 
     def turn_off(self):
         pass
