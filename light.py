@@ -44,7 +44,7 @@ class Light():
         start_color = self.hex_to_rgb(self.config.get('SUNCYCLE', 'StartColor'))
         end_color = self.hex_to_rgb(self.config.get('SUNCYCLE', 'EndColor'))
         increment = []
-        for i in range(0, 2):
+        for i in range(0, 3):
             increment.append(end_color[i] - start_color[i])
         return tuple(increment)
 
@@ -55,6 +55,7 @@ class Light():
         for led_index in range(self.leds_per_row):
             self.scheduler.enter(schedule_time + time_increment, 1, self.change_row,
                                  argument=(led_index, color_increment,))
+            schedule_time += time_increment
         self.scheduler.run()
 
     def change_row(self, led_index: int, increment: tuple):
