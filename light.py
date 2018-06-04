@@ -30,6 +30,10 @@ class Light():
 
     def parse_color(self, color: int):
         binary = bin(color)
+        blue = color & 255
+        green = (color >> 8) & 255
+        red = (color >> 16) & 255
+        return red, green, blue
         return tuple(int(binary[i:i + 8], 2) for i in [2, 10, 18])
 
     def hex_to_rgb(self, hex_color: str):
