@@ -61,8 +61,9 @@ class Light():
 
     def change_row(self, led_index: int, increment: tuple):
         for row_index in range(self.led_rows):
-            pixel_index = led_index + (row_index * self.leds_per_row)
-            color = self.get_pixel_color(pixel_index)
-            self.strip.setPixelColor(pixel_index, Color(color[0] + increment[0], color[1] + increment[1],
-                                                        color[2] + increment[2]))
+            for index in range(led_index):
+                pixel_index = index + (row_index * self.leds_per_row)
+                color = self.get_pixel_color(pixel_index)
+                self.strip.setPixelColor(pixel_index, Color(color[0] + increment[0], color[1] + increment[1],
+                                                            color[2] + increment[2]))
         self.strip.show()
