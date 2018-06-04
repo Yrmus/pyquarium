@@ -73,7 +73,7 @@ class Light():
                     pixel_index = index + row_beginning_index
                 color = self.get_pixel_color(pixel_index)
                 if color[0] == 0 and color[1] == 0 and color[2] == 0:
-                    self.strip.setPixelColor(pixel_index, Color(self.config.get('SUNCYCLE', 'StartColor')))
+                    self.strip.setPixelColor(pixel_index, Color(self.hex_to_rgb(self.config.get('SUNCYCLE', 'StartColor'))))
                 else:
                     self.strip.setPixelColor(pixel_index, Color(color[0] + increment[0], color[1] + increment[1],
                                                                 color[2] + increment[2]))
