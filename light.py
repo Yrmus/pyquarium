@@ -1,42 +1,62 @@
 from neopixel import *
-import configparser
-
-
-#
-# LED_COUNT = 105  # Number of LED pixels.
-# LED_PIN = 18  # GPIO pin connected to the pixels (18 uses PWM!).
-# LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
-# LED_DMA = 10  # DMA channel to use for generating signal (try 10)
-# LED_BRIGHTNESS = 255  # Set to 0 for darkest and 255 for brightest
-# LED_INVERT = False  # True to invert the signal (when using NPN transistor level shift)
-# LED_CHANNEL = 0  # set to '1' for GPIOs 13, 19, 41, 45 or 53
+import sched, time
+from config import Config
 
 
 class Light():
     def __init__(self):
-        config = configparser.ConfigParser()
-        config.read('config.ini')
-        # defaultConfig = config['DEFAULT']
-        self.strip = Adafruit_NeoPixel(config.getint('DEFAULT', 'LedCount'), config.getint('DEFAULT', 'LedPin'),
-                                       config.getint('DEFAULT', 'LedFreqHz'), config.getint('DEFAULT', 'LedDma'),
-                                       config.getboolean('DEFAULT', 'LedInvert'),
-                                       config.getint('DEFAULT', 'LedBrightness'),
-                                       config.getint('DEFAULT', 'LedChannel'))
+        self.config = Config()
+        self.leds_per_row = self.config.getint('DEFAULT', 'LedsPerRow')
+        self.led_rows = self.config.getint('DEFAULT', 'LedRows')
+        self.scheduler = sched.scheduler(time.time, time.sleep)
+        led_count = self.led_rows * self.leds_per_row
+        self.strip = Adafruit_NeoPixel(led_count, self.config.getint('DEFAULT', 'LedPin'),
+                                       self.config.getint('DEFAULT', 'LedFreqHz'),
+                                       self.config.getint('DEFAULT', 'LedDma'),
+                                       self.config.getboolean('DEFAULT', 'LedInvert'),
+                                       self.config.getint('DEFAULT', 'LedBrightness'),
+                                       self.config.getint('DEFAULT', 'LedChannel'))
         self.strip.begin()
 
-    def set_color(self, red, green, blue):
+    def set_color(self, red: int, green: int, blue: int):
         for i in range(self.strip.numPixels()):
             self.strip.setPixelColor(i, Color(red, green, blue))
         self.strip.show()
         for i in range(self.strip.numPixels()):
             print('led', i, ' ', self.get_pixel_color(i))
 
-    def get_pixel_color(self, index):
+    def get_pixel_color(self, index: int):
         return self.parse_color(self.strip.getPixelColor(index))
 
-    def parse_color(self, color):
+    def parse_color(self, color: int):
         binary = bin(color)
-        return {'red': int(binary[2:10], 2), 'green': int(binary[10:18], 2), 'blue': int(binary[18:26], 2)}
+        return tuple(int(binary[i:i + 8], 2) for i in [2, 10, 18])
 
-    def turn_off(self):
-        pass
+    def hex_to_rgb(self, hex_color: str):
+        hex = hex_color.lstrip('#')
+        return tuple(int(hex[i:i + 2], 16) for i in (0, 2, 4))
+
+    def get_color_increment(self):
+        start_color = self.hex_to_rgb(self.config.get('SUNCYCLE', 'StartColor'))
+        end_color = self.hex_to_rgb(self.config.get('SUNCYCLE', 'EndColor'))
+        increment = []
+        for i in range(0, 2):
+            increment.append(end_color[i] - start_color[i])
+        return tuple(increment)
+
+    def sunrise(self, time: int):
+        time_increment = time / self.leds_per_row
+        schedule_time = 0
+        color_increment = self.get_color_increment()
+        for led_index in range(self.leds_per_row):
+            self.scheduler.enter(schedule_time + time_increment, 1, self.change_row,
+                                 argument=(led_index, color_increment,))
+        self.scheduler.run()
+
+    def change_row(self, led_index: int, increment: tuple):
+        for row_index in range(self.led_rows):
+            pixel_index = led_index + (row_index * self.leds_per_row)
+            color = self.get_pixel_color(pixel_index)
+            self.strip.setPixelColor(pixel_index, Color(color[0] + increment[0], color[1] + increment[1],
+                                                        color[2] + increment[2]))
+        self.strip.show()
