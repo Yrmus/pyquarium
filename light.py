@@ -61,8 +61,18 @@ class Light():
 
     def change_row(self, led_index: int, increment: tuple):
         for row_index in range(self.led_rows):
+            if row_index % 2 == 0:
+                row_beginning_index = row_index * self.leds_per_row
+                remove_to_progress = False
+            else:
+                row_beginning_index = row_index * self.leds_per_row
+                remove_to_progress = True
+
             for index in range(led_index):
-                pixel_index = index + (row_index * self.leds_per_row)
+                if remove_to_progress:
+                    pixel_index = row_beginning_index - index
+                else:
+                    pixel_index = index + row_beginning_index
                 color = self.get_pixel_color(pixel_index)
                 self.strip.setPixelColor(pixel_index, Color(color[0] + increment[0], color[1] + increment[1],
                                                             color[2] + increment[2]))
