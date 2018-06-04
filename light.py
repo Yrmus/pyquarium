@@ -65,7 +65,7 @@ class Light():
                 row_beginning_index = row_index * self.leds_per_row
                 remove_to_progress = False
             else:
-                row_beginning_index = row_index * self.leds_per_row
+                row_beginning_index = (row_index + 1) * self.leds_per_row
                 remove_to_progress = True
 
             for index in range(led_index):
