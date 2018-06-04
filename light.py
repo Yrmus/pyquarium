@@ -45,7 +45,8 @@ class Light():
         end_color = self.hex_to_rgb(self.config.get('SUNCYCLE', 'EndColor'))
         increment = []
         for i in range(0, 3):
-            increment.append(end_color[i] - start_color[i])
+            color = end_color[i] - start_color[i]
+            increment.append(int(color / self.leds_per_row))
         return tuple(increment)
 
     def sunrise(self, time: int):
