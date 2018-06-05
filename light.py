@@ -1,11 +1,13 @@
 from neopixel import *
 import sched, time
 from config import Config
+from pixels import Pixels
 
 
 class Light():
     def __init__(self):
         self.config = Config()
+        self.pixels = Pixels()
         self.leds_per_row = self.config.getint('DEFAULT', 'LedsPerRow')
         self.led_rows = self.config.getint('DEFAULT', 'LedRows')
         self.scheduler = sched.scheduler(time.time, time.sleep)
@@ -22,8 +24,6 @@ class Light():
         for i in range(self.strip.numPixels()):
             self.strip.setPixelColor(i, Color(red, green, blue))
         self.strip.show()
-        for i in range(self.strip.numPixels()):
-            print('led', i, ' ', self.get_pixel_color(i))
 
     def get_pixel_color(self, index: int):
         return self.parse_color(self.strip.getPixelColor(index))
@@ -58,6 +58,8 @@ class Light():
         self.scheduler.run()
 
     def change_row(self, led_index: int, increment: tuple):
+        max_color_iteration = max(increment)
+
         for row_index in range(self.led_rows):
             if row_index % 2 == 0:
                 row_beginning_index = row_index * self.leds_per_row
@@ -67,15 +69,21 @@ class Light():
                 remove_to_progress = True
 
             for index in range(led_index):
-                if remove_to_progress:
-                    pixel_index = row_beginning_index - index
-                else:
-                    pixel_index = index + row_beginning_index
-                color = self.get_pixel_color(pixel_index)
-                if color[0] == 0 and color[1] == 0 and color[2] == 0:
-                    start_color = self.hex_to_rgb(self.config.get('SUNCYCLE', 'StartColor'))
-                    self.strip.setPixelColor(pixel_index, Color(start_color[1], start_color[0], start_color[2]))
-                else:
-                    self.strip.setPixelColor(pixel_index, Color(color[1] + increment[1], color[0] + increment[0],
-                                                                color[2] + increment[2]))
-        self.strip.show()
+                for color_increment in range(max_color_iteration):
+                    if remove_to_progress:
+                        pixel_index = row_beginning_index - index
+                    else:
+                        pixel_index = index + row_beginning_index
+                    color = self.get_pixel_color(pixel_index)
+                    if color[0] == 0 and color[1] == 0 and color[2] == 0:
+                        start_color = self.hex_to_rgb(self.config.get('SUNCYCLE', 'StartColor'))
+                        self.strip.setPixelColor(pixel_index, Color(start_color[1], start_color[0], start_color[2]))
+                    else:
+                        self.strip.setPixelColor(pixel_index, Color(color[1] + increment[1], color[0] + increment[0],
+                                                                    color[2] + increment[2]))
+                    self.strip.show()
+
+    def sunrise_to_row(self, row: int):
+        for row_index in range(row):
+            max_color = tuple((row_index + 1) * color for color in self.get_color_increment())
+
