@@ -68,7 +68,3 @@ class Light():
                                                         color[2] + increment[2]))
         self.strip.show()
 
-    def sunrise_to_row(self, row: int):
-        for row_index in range(row):
-            max_color = tuple((row_index + 1) * color for color in self.get_color_increment())
-
