@@ -1,4 +1,4 @@
-# from neopixel import *
+from neopixel import *
 import sched, time
 import datetime
 from config import Config
