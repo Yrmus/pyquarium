@@ -1,5 +1,6 @@
 from neopixel import *
 import sched, time
+import datetime
 from config import Config
 from pixels import Pixels
 
@@ -7,18 +8,25 @@ from pixels import Pixels
 class Light():
     def __init__(self):
         self.config = Config()
-        self.pixels = Pixels()
-        self.leds_per_row = self.config.getint('DEFAULT', 'LedsPerRow')
-        self.led_rows = self.config.getint('DEFAULT', 'LedRows')
+        self._pixels = Pixels()
+        self._sunrise_time_delta = datetime.timedelta(0, 10)
+        self._sunrise_start = datetime.datetime.now()
+        self._sunrise_end = self._sunrise_start + self._sunrise_time_delta
+        self._sunrise_refresh_time = self._sunrise_time_delta / 255
+        self._last_time_action = datetime.datetime.now()
+        self._current_color = 0
         self.scheduler = sched.scheduler(time.time, time.sleep)
-        led_count = self.led_rows * self.leds_per_row
-        self.strip = Adafruit_NeoPixel(led_count, self.config.getint('DEFAULT', 'LedPin'),
+        self.strip = Adafruit_NeoPixel(self._pixels.get_led_count(), self.config.getint('DEFAULT', 'LedPin'),
                                        self.config.getint('DEFAULT', 'LedFreqHz'),
                                        self.config.getint('DEFAULT', 'LedDma'),
                                        self.config.getboolean('DEFAULT', 'LedInvert'),
                                        self.config.getint('DEFAULT', 'LedBrightness'),
                                        self.config.getint('DEFAULT', 'LedChannel'))
         self.strip.begin()
+
+    def update(self, time: datetime):
+        if self._sunrise_start < time < self._sunrise_end:
+            self._update_sunrise(time)
 
     def set_color(self, red: int, green: int, blue: int):
         for i in range(self.strip.numPixels()):
@@ -44,27 +52,34 @@ class Light():
         increment = []
         for i in range(0, 3):
             color = end_color[i] - start_color[i]
-            increment.append(int(color / self.leds_per_row))
+            increment.append(int(color / self._pixels.get_leds_per_row()))
         return tuple(increment)
 
     def sunrise(self, time: int):
-        time_increment = time / self.leds_per_row
+        time_increment = time / self._pixels.get_leds_per_row()
         schedule_time = 0
         color_increment = self.get_color_increment()
-        for led_index in range(self.leds_per_row):
+        for led_index in range(self._pixels.get_leds_per_row()):
             self.scheduler.enter(schedule_time + time_increment, 1, self.change_row,
                                  argument=(led_index, color_increment,))
             schedule_time += time_increment
         self.scheduler.run()
 
     def change_row(self, led_index: int, increment: tuple):
-        for pixel_index in self.pixels.get_pixels_for_row(led_index):
+        for pixel_index in self._pixels.get_pixels_for_row(led_index):
             color = self.get_pixel_color(pixel_index)
             if color[0] == 0 and color[1] == 0 and color[2] == 0:
                 start_color = self.hex_to_rgb(self.config.get('SUNCYCLE', 'StartColor'))
                 self.strip.setPixelColor(pixel_index, Color(start_color[1], start_color[0], start_color[2]))
             else:
                 self.strip.setPixelColor(pixel_index, Color(color[1] + increment[1], color[0] + increment[0],
-                                                        color[2] + increment[2]))
+                                                            color[2] + increment[2]))
         self.strip.show()
 
+    def _update_sunrise(self, update_time: datetime):
+        if (update_time > (self._last_time_action + self._sunrise_time_delta)) and self._current_color < 255:
+            self._current_color = self._current_color + 1
+            for row_index in range(self._pixels.get_led_count()):
+                for pixel in self._pixels.get_pixels_for_row(row_index):
+                    self.strip.setPixelColor(pixel, Color(self._current_color, self._current_color, self._current_color))
+                self.strip.show()

@@ -1,4 +1,4 @@
-
+import datetime
 from light import Light
 
 class Pyquarium():
@@ -10,11 +10,15 @@ class Pyquarium():
     def start(self):
         try:
             while True:
-                if not self.working:
-                    print('starting')
-                    self.light.sunrise(30)
-                    # self.light.set_color(255, 255, 255)
-                    self.working = True
+                self.light.update(datetime.datetime.now())
+                # if not self.light.is_working():
+                #     self.light.start()
+                # if not self.working:
+                #
+                #     print('starting')
+                #     self.light.sunrise(30)
+                #     # self.light.set_color(255, 255, 255)
+                #     self.working = True
         except KeyboardInterrupt:
             self.light.set_color(0, 0, 0)
 
