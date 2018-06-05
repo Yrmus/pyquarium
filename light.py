@@ -83,3 +83,4 @@ class Light():
                 for pixel in self._pixels.get_pixels_for_row(row_index):
                     self.strip.setPixelColor(pixel, Color(self._current_color, self._current_color, self._current_color))
                 self.strip.show()
+            self._last_time_action = datetime.datetime.now()
