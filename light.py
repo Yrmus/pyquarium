@@ -9,10 +9,10 @@ class Light():
     def __init__(self):
         self.config = Config()
         self._pixels = Pixels()
-        self._sunrise_time_delta = datetime.timedelta(0, 10)
+        self._sunrise_time_delta = datetime.timedelta(0, 0.3 * 255)
         self._sunrise_start = datetime.datetime.now()
         self._sunrise_end = self._sunrise_start + self._sunrise_time_delta
-        self._sunrise_refresh_time = self._sunrise_time_delta / 255
+        self._sunrise_refresh_time = datetime.timedelta(0, 0, 0, 300)
         self._updating_sunrise = False
         self._last_time_action = datetime.datetime.now()
         self._current_color = 0
@@ -78,12 +78,14 @@ class Light():
         self.strip.show()
 
     def _update_sunrise(self, update_sunrise_time: datetime):
-        if (update_sunrise_time > (self._last_time_action + self._sunrise_refresh_time)) and self._current_color < 255 and not self._updating_sunrise:
+        if (update_sunrise_time > (
+                self._last_time_action + self._sunrise_refresh_time)) and self._current_color < 255 and not self._updating_sunrise:
             self._updating_sunrise = True
             self._current_color = self._current_color + 1
             for row_index in range(self._pixels.get_leds_per_row()):
                 for pixel in self._pixels.get_pixels_for_row(row_index):
-                    self.strip.setPixelColor(pixel, Color(self._current_color, self._current_color, self._current_color))
+                    self.strip.setPixelColor(pixel,
+                                             Color(self._current_color, self._current_color, self._current_color))
                 self.strip.show()
             self._last_time_action = datetime.datetime.now()
             self._updating_sunrise = False
