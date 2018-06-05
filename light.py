@@ -1,4 +1,4 @@
-from neopixel import *
+# from neopixel import *
 import sched, time
 import datetime
 from config import Config
@@ -77,7 +77,7 @@ class Light():
         self.strip.show()
 
     def _update_sunrise(self, update_sunrise_time: datetime):
-        if (update_sunrise_time > (self._last_time_action + self._sunrise_time_delta)) and self._current_color < 255:
+        if (update_sunrise_time > (self._last_time_action + self._sunrise_refresh_time)) and self._current_color < 255:
             self._current_color = self._current_color + 1
             for row_index in range(self._pixels.get_led_count()):
                 for pixel in self._pixels.get_pixels_for_row(row_index):
