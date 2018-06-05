@@ -15,7 +15,7 @@ class Pixels:
 
     def _prepare_pixels_by_row(self):
         rows_dict = {}
-        for row_index in range(self.led_rows):
+        for row_index in range(self.leds_per_row):
             row_pixels = tuple()
             if row_index % 2 == 0:
                 row_beginning_index = row_index * self.leds_per_row
@@ -24,7 +24,7 @@ class Pixels:
                 row_beginning_index = ((row_index + 1) * self.leds_per_row) - 1
                 remove_to_progress = True
 
-            for index in range(self.leds_per_row):
+            for index in range(self.led_rows):
                 if remove_to_progress:
                     pixel_index = row_beginning_index - index
                 else:
