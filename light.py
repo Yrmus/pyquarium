@@ -24,9 +24,9 @@ class Light():
                                        self.config.getint('DEFAULT', 'LedChannel'))
         self.strip.begin()
 
-    def update(self, time: datetime):
-        if self._sunrise_start < time < self._sunrise_end:
-            self._update_sunrise(time)
+    def update(self, update_time: datetime):
+        if self._sunrise_start < update_time < self._sunrise_end:
+            self._update_sunrise(update_time)
 
     def set_color(self, red: int, green: int, blue: int):
         for i in range(self.strip.numPixels()):
@@ -76,8 +76,8 @@ class Light():
                                                             color[2] + increment[2]))
         self.strip.show()
 
-    def _update_sunrise(self, update_time: datetime):
-        if (update_time > (self._last_time_action + self._sunrise_time_delta)) and self._current_color < 255:
+    def _update_sunrise(self, update_sunrise_time: datetime):
+        if (update_sunrise_time > (self._last_time_action + self._sunrise_time_delta)) and self._current_color < 255:
             self._current_color = self._current_color + 1
             for row_index in range(self._pixels.get_led_count()):
                 for pixel in self._pixels.get_pixels_for_row(row_index):
