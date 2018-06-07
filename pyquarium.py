@@ -5,7 +5,7 @@ import queue
 
 class Pyquarium():
     def __init__(self):
-        self.light = Light()
+        # self.light = Light()
         self.working = False
         self.start()
 
@@ -29,7 +29,7 @@ class Pyquarium():
                 #     self.working = True
         except KeyboardInterrupt:
             thread_queue.put(None)
-            self.light.set_color(0, 0, 0)
+            # self.light.set_color(0, 0, 0)
 
 
 # Main program logic follows:
