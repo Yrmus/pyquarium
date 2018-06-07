@@ -3,13 +3,10 @@ import sched, time
 import datetime
 from config import Config
 from pixels import Pixels
-import threading
 
 
-class Light(threading.Thread):
-    def __init__(self, thread_queue):
-        threading.Thread.__init__(self)
-        self.queue = thread_queue
+class Light():
+    def __init__(self, ):
         self.config = Config()
         self._pixels = Pixels()
         self._sunrise_time_delta = datetime.timedelta(0, 0.3 * 255)
@@ -28,16 +25,8 @@ class Light(threading.Thread):
                                        self.config.getint('DEFAULT', 'LedChannel'))
         self.strip.begin()
 
-    def run(self):
-        while True:
-            request = self.queue.get()
-            if request is None:
-                break
-            self.update(datetime.datetime.now())
-
-    def update(self, update_time: datetime):
-        if self._sunrise_start < update_time < self._sunrise_end:
-            self._update_sunrise(update_time)
+    def update(self):
+        self._update_sunrise()
 
     def set_color(self, red: int, green: int, blue: int):
         for i in range(self.strip.numPixels()):
@@ -87,16 +76,10 @@ class Light(threading.Thread):
                                                             color[2] + increment[2]))
         self.strip.show()
 
-    def _update_sunrise(self, update_sunrise_time: datetime):
-        if (update_sunrise_time > (
-                self._last_time_action + self._sunrise_refresh_time)) and self._current_color < 255 and not self._updating_sunrise:
-            self._updating_sunrise = True
-            self._current_color = self._current_color + 1
-            for row_index in range(self._pixels.get_leds_per_row()):
-                for pixel in self._pixels.get_pixels_for_row(row_index):
-                    self.strip.setPixelColor(pixel,
-                                             Color(self._current_color, self._current_color, self._current_color))
-                self.strip.show()
-            self._last_time_action = datetime.datetime.now()
-            self._updating_sunrise = False
-
+    def _update_sunrise(self):
+        self._current_color = self._current_color + 1
+        for row_index in range(self._pixels.get_leds_per_row()):
+            for pixel in self._pixels.get_pixels_for_row(row_index):
+                self.strip.setPixelColor(pixel,
+                                         Color(self._current_color, self._current_color, self._current_color))
+            self.strip.show()
