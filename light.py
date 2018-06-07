@@ -3,10 +3,13 @@ import sched, time
 import datetime
 from config import Config
 from pixels import Pixels
+import threading
 
 
-class Light():
-    def __init__(self):
+class Light(threading.Thread):
+    def __init__(self, thread_queue):
+        threading.Thread.__init__(self)
+        self.queue = thread_queue
         self.config = Config()
         self._pixels = Pixels()
         self._sunrise_time_delta = datetime.timedelta(0, 0.3 * 255)
@@ -24,6 +27,13 @@ class Light():
                                        self.config.getint('DEFAULT', 'LedBrightness'),
                                        self.config.getint('DEFAULT', 'LedChannel'))
         self.strip.begin()
+
+    def run(self):
+        while True:
+            request = self.queue.get()
+            if request is None:
+                break
+            self.update(datetime.datetime.now())
 
     def update(self, update_time: datetime):
         if self._sunrise_start < update_time < self._sunrise_end:
@@ -89,3 +99,4 @@ class Light():
                 self.strip.show()
             self._last_time_action = datetime.datetime.now()
             self._updating_sunrise = False
+

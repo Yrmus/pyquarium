@@ -1,5 +1,7 @@
+
 import datetime
 from light import Light
+import queue
 
 class Pyquarium():
     def __init__(self):
@@ -8,9 +10,15 @@ class Pyquarium():
         self.start()
 
     def start(self):
+        thread_queue = queue.Queue()
         try:
+            is_working = False
             while True:
-                self.light.update(datetime.datetime.now())
+                # self.light.update(datetime.datetime.now())
+                if is_working is False:
+                    is_working = True
+                    Light(thread_queue).start()
+                    thread_queue.put('s')
                 # if not self.light.is_working():
                 #     self.light.start()
                 # if not self.working:
@@ -20,6 +28,7 @@ class Pyquarium():
                 #     # self.light.set_color(255, 255, 255)
                 #     self.working = True
         except KeyboardInterrupt:
+            thread_queue.put(None)
             self.light.set_color(0, 0, 0)
 
 
