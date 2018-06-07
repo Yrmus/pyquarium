@@ -55,31 +55,11 @@ class Light():
             increment.append(int(color / self._pixels.get_leds_per_row()))
         return tuple(increment)
 
-    def sunrise(self, time: int):
-        time_increment = time / self._pixels.get_leds_per_row()
-        schedule_time = 0
-        color_increment = self.get_color_increment()
-        for led_index in range(self._pixels.get_leds_per_row()):
-            self.scheduler.enter(schedule_time + time_increment, 1, self.change_row,
-                                 argument=(led_index, color_increment,))
-            schedule_time += time_increment
-        self.scheduler.run()
-
-    def change_row(self, led_index: int, increment: tuple):
-        for pixel_index in self._pixels.get_pixels_for_row(led_index):
-            color = self.get_pixel_color(pixel_index)
-            if color[0] == 0 and color[1] == 0 and color[2] == 0:
-                start_color = self.hex_to_rgb(self.config.get('SUNCYCLE', 'StartColor'))
-                self.strip.setPixelColor(pixel_index, Color(start_color[1], start_color[0], start_color[2]))
-            else:
-                self.strip.setPixelColor(pixel_index, Color(color[1] + increment[1], color[0] + increment[0],
-                                                            color[2] + increment[2]))
-        self.strip.show()
-
     def _update_sunrise(self):
-        self._current_color = self._current_color + 1
-        for row_index in range(self._pixels.get_leds_per_row()):
-            for pixel in self._pixels.get_pixels_for_row(row_index):
-                self.strip.setPixelColor(pixel,
-                                         Color(self._current_color, self._current_color, self._current_color))
-            self.strip.show()
+        self._current_color = self._current_color + 10
+        if self._current_color <= 255:
+            for row_index in range(self._pixels.get_leds_per_row()):
+                for pixel in self._pixels.get_pixels_for_row(row_index):
+                    self.strip.setPixelColor(pixel,
+                                             Color(self._current_color, self._current_color, self._current_color))
+                self.strip.show()
