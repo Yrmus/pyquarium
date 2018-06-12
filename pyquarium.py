@@ -22,7 +22,6 @@ class Pyquarium():
 
     def update_light_status(self):
         self.light.update()
-        print('run')
         self.scheduler.enter(1, 1, self.update_light_status)
 
 
