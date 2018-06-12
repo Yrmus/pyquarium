@@ -1,6 +1,6 @@
-
 import sched, time
-from light import Light
+from light.light import Light
+
 
 class Pyquarium():
     def __init__(self):
@@ -18,7 +18,7 @@ class Pyquarium():
                     self.scheduler.enter(1, 1, self.update_light_status)
                     self.scheduler.run()
         except KeyboardInterrupt:
-            self.light.set_color(0, 0, 0)
+            self.light.led_strip.update_color(0, 0, 0)
 
     def update_light_status(self):
         self.light.update()
