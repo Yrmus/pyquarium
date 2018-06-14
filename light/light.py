@@ -41,8 +41,10 @@ class Light(threading.Thread):
 
     def update(self):
         if self.is_time_to_sunrise():
+            self.led_strip.update_color(*self._colors.get_sunrise_color(0))
             self._initialize_day_effect(self.STATE_SUNRISE)
         elif self.is_time_to_sunset():
+            self.led_strip.update_color(*self._colors.get_sunrise_color(self._colors.get_sunrise_colors_count()))
             self._initialize_day_effect(self.STATE_SUNSET)
         self._update()
         if not self._stop_event.is_set():
