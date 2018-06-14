@@ -10,10 +10,11 @@ from light.pixels import Pixels
 
 
 class Light(threading.Thread):
-    STATE_NIGHT = 0
+    STATE_DAWN = 0
     STATE_SUNRISE = 1
     STATE_DAY = 2
     STATE_SUNSET = 3
+    STATE_DUSK = 4
 
     def __init__(self, stop_event):
         threading.Thread.__init__(self)
@@ -35,11 +36,13 @@ class Light(threading.Thread):
         self._last_shining_row = 0
         self._row_colors = {}
 
-        self.state = self.STATE_NIGHT
+        self.state = self.STATE_DAWN
+        self._last_check_date = datetime.datetime.today().date()
         self._scheduler.enter(1, 1, self.update)
         self._scheduler.run()
 
     def update(self):
+        self.check_for_date_change()
         if self.is_time_to_sunrise():
             self.led_strip.update_color(*self._colors.get_sunrise_color(0))
             self._initialize_day_effect(self.STATE_SUNRISE)
@@ -60,7 +63,7 @@ class Light(threading.Thread):
 
     def is_time_to_sunrise(self):
         now = datetime.datetime.now()
-        return now > Light.get_time(self._sunrise_time) and self.state == self.STATE_NIGHT
+        return now > Light.get_time(self._sunrise_time) and self.state == self.STATE_DAWN
 
     def is_time_to_sunset(self):
         now = datetime.datetime.now()
@@ -82,7 +85,7 @@ class Light(threading.Thread):
 
     def _update(self):
         # Do nothing at day or night
-        if self.state == self.STATE_NIGHT or self.state == self.STATE_DAY:
+        if self.state in [self.STATE_DAWN, self.STATE_DAY, self.STATE_DUSK]:
             print('day or night')
             return
         if self.is_time_to_update():
@@ -123,7 +126,7 @@ class Light(threading.Thread):
                     self.led_strip.show()
 
                     if rows_done == self._pixels.get_leds_per_row():
-                        self.change_state(Light.STATE_NIGHT)
+                        self.change_state(Light.STATE_DUSK)
                     print('sunset update')
 
                 if self._last_shining_row < self._pixels.get_leds_per_row():
@@ -136,3 +139,8 @@ class Light(threading.Thread):
         self._effect_progress = 0
         self._last_shining_row = 0
         self._row_colors = {}
+
+    def check_for_date_change(self):
+        if datetime.datetime.today().date() > self._last_check_date and self.state == self.STATE_DUSK:
+            self.state = self.STATE_DAWN
+        self._last_check_date = datetime.datetime.today().date()
