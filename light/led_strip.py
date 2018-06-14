@@ -17,7 +17,7 @@ class LedStrip:
 
     def set_pixel_color(self, pixel_index: int, red: int, green: int, blue: int):
         # print(pixel_index, red, green, blue)
-        self.strip.setPixelColor(pixel_index, Color(red, green, blue))
+        self.strip.setPixelColor(pixel_index, Color(green, red, blue))
 
     def show(self):
         # print('show')
