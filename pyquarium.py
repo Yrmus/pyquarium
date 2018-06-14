@@ -1,12 +1,11 @@
-import sched, time
 from light.light import Light
+import threading
 
 
-class Pyquarium():
+class Pyquarium:
     def __init__(self):
-        self.light = Light()
-        self.scheduler = sched.scheduler(time.time, time.sleep)
-
+        self._light_stop_event = threading.Event()
+        self.light = None
         self.start()
 
     def start(self):
@@ -15,14 +14,12 @@ class Pyquarium():
             while True:
                 if is_working is False:
                     is_working = True
-                    self.scheduler.enter(1, 1, self.update_light_status)
-                    self.scheduler.run()
+                    threading.Thread(target=self.start_light_thread).start()
         except KeyboardInterrupt:
-            self.light.led_strip.update_color(0, 0, 0)
+            self._light_stop_event.set()
 
-    def update_light_status(self):
-        self.light.update()
-        self.scheduler.enter(1, 1, self.update_light_status)
+    def start_light_thread(self):
+        self.light = Light(self._light_stop_event)
 
 
 # Main program logic follows:

@@ -1,4 +1,4 @@
-# from neopixel import *
+from neopixel import *
 from config import Config
 from light.pixels import Pixels
 
@@ -7,26 +7,26 @@ class LedStrip:
     def __init__(self):
         self.config = Config()
         self._pixels = Pixels()
-        # self.strip = Adafruit_NeoPixel(self._pixels.get_led_count(), self.config.getint('DEFAULT', 'LedPin'),
-        #                                self.config.getint('DEFAULT', 'LedFreqHz'),
-        #                                self.config.getint('DEFAULT', 'LedDma'),
-        #                                self.config.getboolean('DEFAULT', 'LedInvert'),
-        #                                self.config.getint('DEFAULT', 'LedBrightness'),
-        #                                self.config.getint('DEFAULT', 'LedChannel'))
-        # self.strip.begin()
+        self.strip = Adafruit_NeoPixel(self._pixels.get_led_count(), self.config.getint('DEFAULT', 'LedPin'),
+                                       self.config.getint('DEFAULT', 'LedFreqHz'),
+                                       self.config.getint('DEFAULT', 'LedDma'),
+                                       self.config.getboolean('DEFAULT', 'LedInvert'),
+                                       self.config.getint('DEFAULT', 'LedBrightness'),
+                                       self.config.getint('DEFAULT', 'LedChannel'))
+        self.strip.begin()
 
     def set_pixel_color(self, pixel_index: int, red: int, green: int, blue: int):
-        print(pixel_index, red, green, blue)
-        # self.strip.setPixelColor(pixel_index, Color(red, green, blue))
+        # print(pixel_index, red, green, blue)
+        self.strip.setPixelColor(pixel_index, Color(red, green, blue))
 
     def show(self):
-        print('show')
-        # self.strip.show()
+        # print('show')
+        self.strip.show()
 
     def get_pixel_color(self, index: int):
-        print('get pixel color')
-        return index, index, index
-        # return LedStrip.parse_color(self.strip.getPixelColor(index))
+        # print('get pixel color')
+        # return index, index, index
+        return LedStrip.parse_color(self.strip.getPixelColor(index))
 
     def set_color(self, red: int, green: int, blue: int):
         for i in range(self._pixels.get_led_count()):

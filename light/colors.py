@@ -23,8 +23,8 @@ class Colors:
             19: (220, 220, 220,),
         }
 
-        def get__sunrise_colors(self):
-            return self._sunrise_colors
+    def get__sunrise_colors(self):
+        return self._sunrise_colors
 
-        def get_sunrise_color(self, index: int):
-            return self._sunrise_colors[index]
+    def get_sunrise_color(self, index: int):
+        return self._sunrise_colors[index]
