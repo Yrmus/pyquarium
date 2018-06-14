@@ -27,8 +27,10 @@ class Light(threading.Thread):
         self._sunrise_time = self.config.get('SUNCYCLE', 'Sunrise')
         self._sunset_time = self.config.get('SUNCYCLE', 'Sunset')
 
-        self._day_effect_duration = int(self.config.getint('SUNCYCLE', 'DayEffectDuration'))
-        self._progress_per_update = int(self._day_effect_duration / (2 * self._pixels.get_leds_per_row()))
+        self._day_effect_duration = max(int(self.config.getint('SUNCYCLE', 'DayEffectDuration')),
+                                        self._colors.get_sunrise_colors_count() + self._pixels.get_leds_per_row())
+        self._progress_per_update = max(int(
+            self._day_effect_duration / (self._colors.get_sunrise_colors_count() + self._pixels.get_leds_per_row())), 1)
         self._effect_progress = 0
         self._last_shining_row = 0
         self._row_colors = {}
@@ -89,7 +91,7 @@ class Light(threading.Thread):
                     if index_key not in self._row_colors:
                         self._row_colors[index_key] = 0
                     current_row_color = self._row_colors[index_key]
-                    if current_row_color == self._pixels.get_leds_per_row():
+                    if current_row_color == self._colors.get_sunrise_colors_count():
                         rows_done += 1
                         continue
                     new_row_color = current_row_color + 1
