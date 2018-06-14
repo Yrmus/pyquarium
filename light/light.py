@@ -54,7 +54,7 @@ class Light(threading.Thread):
     def get_time(time_string: str):
         time_now = datetime.datetime.now()
         splited = time_string.split(':')
-        return time_now.replace(hour=int(splited[0]), minute=int(splited[1]))
+        return time_now.replace(hour=int(splited[0]), minute=int(splited[1]), second=0)
 
     def is_time_to_sunrise(self):
         now = datetime.datetime.now()
