@@ -85,27 +85,48 @@ class Light(threading.Thread):
             return
         if self.is_time_to_update():
             rows_done = 0
-            if self.state == self.STATE_SUNRISE and self._effect_progress % self._progress_per_update == 0:
-                for pixel_index in range(self._last_shining_row):
-                    index_key = str(pixel_index)
-                    if index_key not in self._row_colors:
-                        self._row_colors[index_key] = 0
-                    current_row_color = self._row_colors[index_key]
-                    if current_row_color == self._colors.get_sunrise_colors_count():
-                        rows_done += 1
-                        continue
-                    new_row_color = current_row_color + 1
-                    self.led_strip.set_row_color(pixel_index, *self._colors.get_sunrise_color(new_row_color))
-                    self._row_colors[index_key] = new_row_color
-                self.led_strip.show()
+            # Perform actions only with proper interval
+            if self._effect_progress % self._progress_per_update == 0:
+                # Sunrise
+                if self.state == self.STATE_SUNRISE:
+                    for pixel_index in range(self._last_shining_row):
+                        index_key = str(pixel_index)
+                        if index_key not in self._row_colors:
+                            self._row_colors[index_key] = 0
+                        current_row_color = self._row_colors[index_key]
+                        if current_row_color == self._colors.get_sunrise_colors_count():
+                            rows_done += 1
+                            continue
+                        new_row_color = current_row_color + 1
+                        self.led_strip.set_row_color(pixel_index, *self._colors.get_sunrise_color(new_row_color))
+                        self._row_colors[index_key] = new_row_color
+                    self.led_strip.show()
+
+                    if rows_done == self._pixels.get_leds_per_row():
+                        self.change_state(Light.STATE_DAY)
+                    print('sunrise update')
+                # Sunset
+                elif self.state == self.STATE_SUNSET:
+                    for pixel_index in range(self._last_shining_row):
+                        index_key = str(pixel_index)
+                        if index_key not in self._row_colors:
+                            self._row_colors[index_key] = self._colors.get_sunrise_colors_count()
+                        current_row_color = self._row_colors[index_key]
+                        if current_row_color == 0:
+                            rows_done += 1
+                            continue
+                        new_row_color = current_row_color - 1
+                        self.led_strip.set_row_color(pixel_index, *self._colors.get_sunrise_color(new_row_color))
+                        self._row_colors[index_key] = new_row_color
+                    self.led_strip.show()
+
+                    if rows_done == self._pixels.get_leds_per_row():
+                        self.change_state(Light.STATE_NIGHT)
+                    print('sunset update')
+
                 if self._last_shining_row < self._pixels.get_leds_per_row():
                     self._last_shining_row += 1
-                if rows_done == self._pixels.get_leds_per_row():
-                    self.change_state(Light.STATE_DAY)
-                print('sunrise update')
-            else:
-                print('sunset update')
-            self._effect_progress += 1
+                self._effect_progress += 1
 
     def change_state(self, state: int):
         print('state changed')
