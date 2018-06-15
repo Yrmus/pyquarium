@@ -143,4 +143,5 @@ class Light(threading.Thread):
     def check_for_date_change(self):
         if datetime.datetime.today().date() > self._last_check_date and self.state == self.STATE_DUSK:
             self.state = self.STATE_DAWN
-        self._last_check_date = datetime.datetime.today().date()
+            self._last_check_date = datetime.datetime.today().date()
+
