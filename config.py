@@ -16,3 +16,10 @@ class Config:
     def get(self, section: str, option: str):
         return self.config.get(section, option)
 
+    def set(self, section: str, option: str, value: str):
+        self.config.set(section, option, value)
+
+    def write(self):
+        with open('config.ini', 'w') as config_file:
+            self.config.write(config_file)
+            config_file.close()

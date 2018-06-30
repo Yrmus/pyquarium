@@ -7,6 +7,7 @@ from config import Config
 from light.colors import Colors
 from light.led_strip import LedStrip
 from light.pixels import Pixels
+from sensors_data import SensorsData
 
 
 class Light(threading.Thread):
@@ -16,11 +17,12 @@ class Light(threading.Thread):
     STATE_SUNSET = 3
     STATE_DUSK = 4
 
-    def __init__(self, stop_event):
+    def __init__(self, stop_event, sensors_data: SensorsData, config: Config):
         threading.Thread.__init__(self)
+        self.sensors_data = sensors_data
         self._stop_event = stop_event
-        self.config = Config()
-        self.led_strip = LedStrip()
+        self.config = config
+        self.led_strip = LedStrip(config)
         self._pixels = Pixels()
         self._colors = Colors()
         self._scheduler = sched.scheduler(time.time, time.sleep)
@@ -42,6 +44,8 @@ class Light(threading.Thread):
         self._scheduler.run()
 
     def update(self):
+        self._sunrise_time = self.config.get('SUNCYCLE', 'Sunrise')
+        self._sunset_time = self.config.get('SUNCYCLE', 'Sunset')
         self.check_for_date_change()
         if self.is_time_to_sunrise():
             self.led_strip.update_color(*self._colors.get_sunrise_color(0))
@@ -82,6 +86,7 @@ class Light(threading.Thread):
             print('Sunset started')
         else:
             raise ValueError('Day effect %d unknown' % direction)
+        self.sensors_data.day_time = self.state
 
     def _update(self):
         # Do nothing at day or night
@@ -139,9 +144,9 @@ class Light(threading.Thread):
         self._effect_progress = 0
         self._last_shining_row = 0
         self._row_colors = {}
+        self.sensors_data.day_time = self.state
 
     def check_for_date_change(self):
         if datetime.datetime.today().date() > self._last_check_date and self.state == self.STATE_DUSK:
             self.state = self.STATE_DAWN
             self._last_check_date = datetime.datetime.today().date()
-

@@ -4,8 +4,8 @@ from light.pixels import Pixels
 
 
 class LedStrip:
-    def __init__(self):
-        self.config = Config()
+    def __init__(self, config: Config):
+        self.config = config
         self._pixels = Pixels()
         self.strip = Adafruit_NeoPixel(self._pixels.get_led_count(), self.config.getint('DEFAULT', 'LedPin'),
                                        self.config.getint('DEFAULT', 'LedFreqHz'),
