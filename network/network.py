@@ -26,7 +26,7 @@ class Network:
         return response.read()
 
     def mark_order_as_executed(self, order_id: int):
-        self._connection.request("POST", "%s/execute/%d" % (self._orders_route, order_id), json.dumps({id: order_id}),
+        self._connection.request("POST", "%s/execute/%d" % (self._orders_route, order_id), json.dumps({'id': order_id}),
                                  self._headers)
         response = self._connection.getresponse()
         response.read()
