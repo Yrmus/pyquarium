@@ -6,7 +6,7 @@ import time
 import json
 
 
-class OrdersUpdater(threading.Thread):
+class OrdersClient(threading.Thread):
 
     def __init__(self, stop_event, config: Config):
         threading.Thread.__init__(self)

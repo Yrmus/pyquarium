@@ -1,5 +1,5 @@
 from light.light import Light
-from network.orders_updater import OrdersUpdater
+from network.orders_client import OrdersClient
 from sensors_data import SensorsData
 from config import Config
 import threading
@@ -12,7 +12,7 @@ class Pyquarium:
         self.sensors_data = SensorsData()
         self.config = Config()
         self.light = None
-        self.orders_updater = None
+        self.orders_client = None
         self.start()
 
     def start(self):
@@ -31,7 +31,7 @@ class Pyquarium:
         self.light = Light(self._light_stop_event, self.sensors_data, self.config)
 
     def start_orders_thread(self):
-        self.orders_updater = OrdersUpdater(self._order_stop_event, self.config)
+        self.orders_client = OrdersClient(self._order_stop_event, self.config)
 
 
 # Main program logic follows:
