@@ -17,7 +17,7 @@ class Light(threading.Thread):
     STATE_SUNSET = 3
     STATE_DUSK = 4
 
-    def __init__(self, stop_event, sensors_data: SensorsData, config: Config):
+    def __init__(self, stop_event, config: Config, sensors_data: SensorsData):
         threading.Thread.__init__(self)
         self.sensors_data = sensors_data
         self._stop_event = stop_event
@@ -34,11 +34,13 @@ class Light(threading.Thread):
                                         self._colors.get_sunrise_colors_count() + self._pixels.get_leds_per_row())
         self._progress_per_update = max(int(
             self._day_effect_duration / (self._colors.get_sunrise_colors_count() + self._pixels.get_leds_per_row())), 1)
+
+        self.state = self.STATE_DAWN
+        self.sensors_data.day_time = self.state
         self._effect_progress = 0
         self._last_shining_row = 0
         self._row_colors = {}
 
-        self.state = self.STATE_DAWN
         self._last_check_date = datetime.datetime.today().date()
         self._scheduler.enter(1, 1, self.update)
         self._scheduler.run()
@@ -77,12 +79,11 @@ class Light(threading.Thread):
         return self._effect_progress <= self._day_effect_duration
 
     def _initialize_day_effect(self, direction: int):
-        self._effect_progress = 0
         if direction == self.STATE_SUNRISE:
-            self.state = self.STATE_SUNRISE
+            self.change_state(self.STATE_SUNRISE)
             print('Sunrise started')
         elif direction == self.STATE_SUNSET:
-            self.state = self.STATE_SUNSET
+            self.change_state(self.STATE_SUNSET)
             print('Sunset started')
         else:
             raise ValueError('Day effect %d unknown' % direction)
@@ -141,12 +142,12 @@ class Light(threading.Thread):
     def change_state(self, state: int):
         print('state changed')
         self.state = state
+        self.sensors_data.day_time = state
         self._effect_progress = 0
         self._last_shining_row = 0
         self._row_colors = {}
-        self.sensors_data.day_time = self.state
 
     def check_for_date_change(self):
         if datetime.datetime.today().date() > self._last_check_date and self.state == self.STATE_DUSK:
-            self.state = self.STATE_DAWN
+            self.change_state(self.STATE_DAWN)
             self._last_check_date = datetime.datetime.today().date()

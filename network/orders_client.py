@@ -1,28 +1,20 @@
-from network.network import Network
 from config import Config
-import threading
-import sched
-import time
+from network.threaded_client import ThreadedClient
 import json
 
 
-class OrdersClient(threading.Thread):
+class OrdersClient(ThreadedClient):
 
     def __init__(self, stop_event, config: Config):
-        threading.Thread.__init__(self)
-        self.config = config
-        self._stop_event = stop_event
-        self._scheduler = sched.scheduler(time.time, time.sleep)
-        self._network = Network(config)
-        self._scheduler.enter(2, 1, self.update)
-        self._scheduler.run()
+        ThreadedClient.__init__(self, stop_event, config)
 
     def update(self):
-        new_orders = json.loads(self._network.get_orders())
-        if new_orders is not None and type(new_orders) is dict:
-            self.update_config(new_orders)
-        if not self._stop_event.is_set():
-            self._scheduler.enter(2, 1, self.update)
+        orders = self._network.get_orders()
+        if orders is not None:
+            new_orders = json.loads(orders)
+            if type(new_orders) is dict:
+                self.update_config(new_orders)
+        super(OrdersClient, self).update()
 
     def update_config(self, data: dict):
         if data.get('sunriseTime') is not None:
