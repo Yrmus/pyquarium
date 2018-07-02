@@ -42,7 +42,7 @@ class Light(threading.Thread):
         self._row_colors = {}
 
         self._last_check_date = datetime.datetime.today().date()
-        self._scheduler.enter(1, 1, self.update)
+        self._scheduler.enter(10, 1, self.update)
         self._scheduler.run()
 
     def update(self):
