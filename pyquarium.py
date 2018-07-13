@@ -22,7 +22,8 @@ class Pyquarium:
             while True:
                 if is_working is False:
                     is_working = True
-                    threading.Thread(target=self.start_orders_thread).start()
+                    if self.config.getboolean('NETWORK', 'disabled') is False:
+                        threading.Thread(target=self.start_orders_thread).start()
                     threading.Thread(target=self.start_light_thread).start()
                     threading.Thread(target=self.start_sensors_thread).start()
         except KeyboardInterrupt:
